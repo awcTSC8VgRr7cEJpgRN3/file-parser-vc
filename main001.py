@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import os
-import file_parser_vc as fp
+import filecmp
+
+blah = ' (2)'
 
 def traversal_error_handler(oserror_instance):
     print(oserror_instance)
@@ -12,10 +14,12 @@ for dirpath, dirnames, filenames in os.walk(os.getcwd(), topdown=True, onerror=t
     for filename in filenames:
         try:
             filepath = os.path.join(dirpath, filename)
-            file = fp.File(filepath)
-            fileext = file.format_ext()
-            if fileext and os.path.splitext(filepath)[1].lower() not in fileext:
-                os.rename(filepath, filepath + fileext[0])
+            indexof_last_blah = filename.rfind(blah)
+            if not indexof_last_blah < 0:
+                filename_wo_blah = filename[:indexof_last_blah] + filename[indexof_last_blah + len(blah):]
+                filepath_wo_blah = os.path.join(dirpath, filename_wo_blah)
+                if filecmp.cmp(filepath, filepath_wo_blah):
+                    os.remove(filepath)
         except Exception as e:
             # Other errors...
             print('\t' + str(type(e)) + ':', e)
